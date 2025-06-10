@@ -5,6 +5,7 @@ const app = express();
 
 const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
+const deviceRoutes = require("./routes/device.routes");
 
 app.use(cors());
 app.use(express.json());
@@ -16,5 +17,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/devices", deviceRoutes);
 
 module.exports = app;
