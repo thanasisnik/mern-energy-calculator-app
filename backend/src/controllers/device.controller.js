@@ -100,3 +100,13 @@ exports.deleteDeviceById = async (req, res) => {
         res.status(500).json({status: false, message: "Error deleting device", error: error.message});
     }
 }
+
+// Delete all devices
+exports.deleteAllDevices = async (req, res) => {
+    try {
+        await Device.deleteMany({});
+        res.status(200).json({status: true, message: "All devices deleted successfully"});
+    } catch (error) {
+        res.status(500).json({status: false, message: "Error deleting devices", error: error.message});
+    }
+}

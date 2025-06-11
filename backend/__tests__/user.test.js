@@ -4,8 +4,8 @@ const app = require('../src/app');
 const User = require('../src/models/user.model');
 
 
-beforeEach(async () => {
-    // Clear the User collection before each test
+afterAll(async () => {
+    // Clear the User collection after all tests
     await User.deleteOne({ email: 'test@example.com' });
 });
 

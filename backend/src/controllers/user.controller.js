@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 
+// Create a new user
 exports.createUser = async (req, res) => {
 
     let data = req.body;
@@ -27,7 +28,7 @@ exports.createUser = async (req, res) => {
     if (data.password.length < 6) {
         return res.status(400).json({status: false, message: "Password must be at least 6 characters long"});
     } 
-
+    // Create a new user instance
     const user = new User({
         email: data.email,
         password: hashedPassword,
@@ -43,4 +44,37 @@ exports.createUser = async (req, res) => {
         res.status(400).json({status: false, message: err.message});
     }
 
+}
+
+// Show user profile
+exports.getUserById = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = await User.findById(userId, { password: 0 }); // Exclude password from response
+        if (!user) {
+            return res.status(404).json({status: false, message: "User not found"});
+        }
+        res.status(200).json({status: true, user: user});
+    } catch (err) {
+        res.status(500).json({status: false, message: err.message});
+    }
+}
+
+
+// Update user profile
+
+// Delete user profile
+exports.deleteUserById = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const result = await User.findByIdAndDelete(userId);
+        if (!result) {
+            return res.status(404).json({status: false, message: "User not found"});
+        }
+        res.status(200).json({status: true, message: "User deleted successfully"});
+    } catch (err) {
+        res.status(500).json({status: false, message: err.message});
+    }
 }
