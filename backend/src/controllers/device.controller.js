@@ -58,3 +58,45 @@ exports.getAllDevices = async (req, res) => {
 }
 
 // Get a device by ID
+exports.getDeviceById = async (req, res) => {
+    const deviceId = req.params.id;
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).json({status: false, message: "Device not found"});
+        }
+        res.status(200).json({status: true, device: device});
+    } catch (error) {
+        res.status(500).json({status: false, message: "Error fetching device", error: error.message});
+    }
+}
+
+// Update a device by ID
+exports.updateDeviceById = async (req, res) => {
+    const deviceId = req.params.id;
+    const data = req.body;
+    try {
+        const device = await Device.findByIdAndUpdate(deviceId, data, { new: true });
+        if (!device) {
+            return res.status(404).json({status: false, message: "Device not found"});
+        }
+        res.status(200).json({status: true, device: device});
+    } catch (error) {
+        res.status(500).json({status: false, message: "Error updating device", error: error.message});
+    }
+}
+
+// Delete a device by ID
+exports.deleteDeviceById = async (req, res) => {
+    const deviceId = req.params.id;
+    try {
+        const device = await Device.findByIdAndDelete(deviceId);
+        if (!device) {
+            return res.status(404).json({status: false, message: "Device not found"});
+        }
+        res.status(200).json({status: true, message: "Device deleted successfully"});
+    } catch (error) {
+        res.status(500).json({status: false, message: "Error deleting device", error: error.message});
+    }
+}
