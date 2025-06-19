@@ -47,4 +47,26 @@ describe('Device API Tests', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.status).toBe(true);
     }, 10000);
+
+    // Test for getting a device by ID
+    it('GET /api/devices/:id - should get a device by ID', async () => {
+        // First, create a device to get its ID
+        const device = await Device.create({
+            type: 'Sensor',
+            name: 'Test Device',
+            mode: 'always-on',
+            consumptionPerHour: '150',
+            location: 'other'
+        });
+
+        const res = await request(app)
+            .get(`/api/devices/${device._id}`);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.status).toBe(true);
+        expect(res.body.device.name).toBe('Test Device');
+    }, 10000);
+
+    // Test for updating a device by ID
+    
 });

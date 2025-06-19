@@ -26,10 +26,9 @@ let deviceUsageSchema = new Schema({
     },
     source: {
         type: String,
-        enum: ["manual", "daily-fixed", "real-time"],
+        enum: ["always-on","manual", "daily-fixed", "real-time"],
         required: [true, "Source is required"]
     },
-
 })
 
 module.exports = mongoose.model("DeviceUsage", deviceUsageSchema);

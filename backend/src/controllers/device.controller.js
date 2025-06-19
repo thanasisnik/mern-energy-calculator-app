@@ -19,11 +19,17 @@ exports.createDevice = async (req, res) => {
     if (!data.consumptionPerHour) {
         return res.status(400).json({status: false, message: "Consumption per hour is required"});
     }
-    if (data.mode === 'daily-fixed' && !data.dailyHours) {
-        return res.status(400).json({status: false, message: "Daily hours are required for daily-fixed mode"});
+    if (data.mode === 'daily-fixed' && !data.dailyFixedSchedule) {
+        return res.status(400).json({status: false, message: "Daily schedule is required for daily-fixed mode"});
     }
-    if (data.mode === 'daily-fixed' && data.dailyHours < 0) {
-        return res.status(400).json({status: false, message: "Daily hours must be a positive number"});
+    if (data.mode === 'daily-fixed' && (!data.dailyFixedSchedule.startTime || !data.dailyFixedSchedule.endTime)) {
+        return res.status(400).json({status: false, message: "Start and end time are required for daily-fixed mode"});
+    }
+
+    // If device mode is 'always-on', then set alwaysOnActivatedAt to current time
+    if (data.mode === 'always-on') {
+        data.alwaysOnActivatedAt = new Date();
+        data.isActive = true; 
     }
 
     // Create a new device instance
@@ -31,8 +37,9 @@ exports.createDevice = async (req, res) => {
         type: data.type,
         name: data.name,
         mode: data.mode,
-        consumptionPerHour: data.consumptionPerHour,
-        dailyHours: data.dailyHours || 0, // Default to 0 if not provided
+        consumptionPerHour: data.consumptionPerHour, 
+        alwaysOnActivatedAt: data.alwaysOnActivatedAt || null, // Default to null if not provided
+        dailyFixedSchedule: data.dailyFixedSchedule || {}, // Default to empty object if not provided
         isActive: data.isActive || false, // Default to false if not provided
         location: data.location || 'other' // Default to 'other' if not provided
     });
@@ -76,6 +83,22 @@ exports.getDeviceById = async (req, res) => {
 exports.updateDeviceById = async (req, res) => {
     const deviceId = req.params.id;
     const data = req.body;
+
+    // if device is updated to daily-fixed , secure that user gives dailyFixedSchedule
+    if (data.mode === 'daily-fixed' && !data.dailyFixedSchedule) {
+        return res.status(400).json({status: false, message: "Daily schedule is required for daily-fixed mode"});
+    }
+
+    if (data.mode === 'daily-fixed' && (!data.dailyFixedSchedule.startTime || !data.dailyFixedSchedule.endTime)) {
+        return res.status(400).json({status: false, message: "Start and end time are required for daily-fixed mode"});
+    }   
+
+    // if device updated to always on , then set alwaysOnActivatedAt to current time
+    if (data.mode === 'always-on') {
+        data.alwaysOnActivatedAt = new Date();
+        data.isActive = true;
+    }
+
     try {
         const device = await Device.findByIdAndUpdate(deviceId, data, { new: true });
         if (!device) {
@@ -110,3 +133,4 @@ exports.deleteAllDevices = async (req, res) => {
         res.status(500).json({status: false, message: "Error deleting devices", error: error.message});
     }
 }
+

@@ -63,6 +63,30 @@ exports.getUserById = async (req, res) => {
 
 
 // Update user profile
+exports.updateUserById = async (req, res) => {
+    const userId = req.params.id;
+    const data = req.body;
+
+    // Validate required fields
+    if (!data.email || !data.fullName) {
+        return res.status(400).json({status: false, message: "Email and full name are required"});
+    }
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+        return res.status(400).json({status: false, message: "Invalid email format"});
+    }
+
+    try {
+        const user = await User.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+        if (!user) {
+            return res.status(404).json({status: false, message: "User not found"});
+        }
+        res.status(200).json({status: true, message: "User updated successfully", user: user});
+    } catch (err) {
+        res.status(500).json({status: false, message: err.message});
+    }
+}
 
 // Delete user profile
 exports.deleteUserById = async (req, res) => {
