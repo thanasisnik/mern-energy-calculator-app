@@ -4,6 +4,11 @@ const Schema = mongoose.Schema;
 
 // Device schema for storing device information
 let deviceSchema = new Schema({
+    deviceId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     // ex. type: "light", "fan", "heater", etc.
     type: {
         type: String,
@@ -21,10 +26,10 @@ let deviceSchema = new Schema({
         required: [true, "Device mode is required"],
     },
     // Consumption per hour in kilowatts (kW)
-    consumptionPerHour: {
+    powerWatts: {
         type: Number,
-        required: [true, "Consumption per hour is required"],
-        min: [0, "Consumption per hour must be a positive number"],
+        required: [true, "is required"],
+        min: [1, "Must be a positive number"],
     },
 
     // If the device is currently active or not 
@@ -41,15 +46,20 @@ let deviceSchema = new Schema({
     // for always-on mode
     alwaysOnActivatedAt: {
         type: Date,
-     
     },
 
     // for daily-fixed mode
     dailyFixedSchedule: {
         startTime: String,
         endTime: String,  
-    }
+    },
 
+    // for manual mode
+    manualActivatedAt: {
+        type: Date
+    }
+    },
+    {timestamps: true
 
 });
 

@@ -1,5 +1,6 @@
 const Device = require('../models/device.model');
-const DeviceUsage = require('../models/device.usage.model');
+const { nanoid } = require("nanoid");
+const {recordEnergyUsage} = require("../services/energy.usage.service")
 
 // Create a new device
 exports.createDevice = async (req, res) => {
@@ -16,7 +17,7 @@ exports.createDevice = async (req, res) => {
     if (!data.mode) {
         return res.status(400).json({status: false, message: "Device mode is required"});
     }
-    if (!data.consumptionPerHour) {
+    if (!data.powerWatts) {
         return res.status(400).json({status: false, message: "Consumption per hour is required"});
     }
     if (data.mode === 'daily-fixed' && !data.dailyFixedSchedule) {
@@ -34,12 +35,13 @@ exports.createDevice = async (req, res) => {
 
     // Create a new device instance
     const device = new Device({
+        deviceId: data.deviceId || nanoid(), // if not given, then a gets a random uuid
         type: data.type,
         name: data.name,
         mode: data.mode,
-        consumptionPerHour: data.consumptionPerHour, 
-        alwaysOnActivatedAt: data.alwaysOnActivatedAt || null, // Default to null if not provided
-        dailyFixedSchedule: data.dailyFixedSchedule || {}, // Default to empty object if not provided
+        powerWatts: data.powerWatts, 
+        alwaysOnActivatedAt: data.alwaysOnActivatedAt,
+        dailyFixedSchedule: data.dailyFixedSchedule ,
         isActive: data.isActive || false, // Default to false if not provided
         location: data.location || 'other' // Default to 'other' if not provided
     });
@@ -66,10 +68,10 @@ exports.getAllDevices = async (req, res) => {
 
 // Get a device by ID
 exports.getDeviceById = async (req, res) => {
-    const deviceId = req.params.id;
+    const id = req.params.id;
 
     try {
-        const device = await Device.findById(deviceId);
+        const device = await Device.findById(id);
         if (!device) {
             return res.status(404).json({status: false, message: "Device not found"});
         }
@@ -81,7 +83,7 @@ exports.getDeviceById = async (req, res) => {
 
 // Update a device by ID
 exports.updateDeviceById = async (req, res) => {
-    const deviceId = req.params.id;
+    const id = req.params.id;
     const data = req.body;
 
     // if device is updated to daily-fixed , secure that user gives dailyFixedSchedule
@@ -100,7 +102,7 @@ exports.updateDeviceById = async (req, res) => {
     }
 
     try {
-        const device = await Device.findByIdAndUpdate(deviceId, data, { new: true });
+        const device = await Device.findByIdAndUpdate(id, data, { new: true });
         if (!device) {
             return res.status(404).json({status: false, message: "Device not found"});
         }
@@ -112,9 +114,9 @@ exports.updateDeviceById = async (req, res) => {
 
 // Delete a device by ID
 exports.deleteDeviceById = async (req, res) => {
-    const deviceId = req.params.id;
+    const id = req.params.id;
     try {
-        const device = await Device.findByIdAndDelete(deviceId);
+        const device = await Device.findByIdAndDelete(id);
         if (!device) {
             return res.status(404).json({status: false, message: "Device not found"});
         }
@@ -134,3 +136,49 @@ exports.deleteAllDevices = async (req, res) => {
     }
 }
 
+exports.toggleManualDevice = async(req, res) => {
+    const id = req.params.id;
+
+    try {
+        const device = await Device.findById(id);
+        if (!device) {
+            return res.status(404).json({status: false, message: "Device not found"})
+        }
+
+        // check if device has manual mode
+        if (device.mode !== 'manual') {
+            return res.status(400).json({status:false, message: "Only manual device can be toggled"})
+        }
+
+        if (device.isActive) {
+            const startTime = device.manualActivatedAt;
+            const endTime = new Date();
+
+            if (!startTime){
+                return res.status(400).json({status:false, message: "No start time found"})
+            }
+
+            await recordEnergyUsage({
+                deviceId: device.deviceId,
+                startTime,
+                endTime,
+                powerWatts: device.powerWatts
+            })
+
+            device.manualActivatedAt = null;
+            device.isActive = false;
+            await device.save();
+            res.status(200).json({status: true, message: "Device turned OFF and usage recorded!"})
+        } else {
+            device.manualActivatedAt = new Date();
+            device.isActive = true;
+            await device.save();
+            res.status(200).json({status: true, message: `Device turned ${device.isActive? "ON" : "OFF"}`})
+        }
+        
+        
+
+    } catch (err) {
+        res.status(500).json({status: false, message: "Error toggling device", error: err.message })
+    }
+}
