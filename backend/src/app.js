@@ -6,6 +6,7 @@ const app = express();
 const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
 const deviceRoutes = require("./routes/device.routes");
+const energyRoutes = require("./routes/energy.routes");
 
 app.use(cors());
 app.use(express.json());
@@ -19,5 +20,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/devices", deviceRoutes);
+
+app.use("/api/consumption", energyRoutes);
 
 module.exports = app;

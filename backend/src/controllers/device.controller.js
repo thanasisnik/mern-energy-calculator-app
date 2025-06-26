@@ -1,6 +1,7 @@
 const Device = require('../models/device.model');
 const { nanoid } = require("nanoid");
 const {recordEnergyUsage} = require("../services/energy.usage.service")
+const logger = require('../logger/logger')
 
 // Create a new device
 exports.createDevice = async (req, res) => {
@@ -60,6 +61,9 @@ exports.createDevice = async (req, res) => {
 exports.getAllDevices = async (req, res) => {
     try {
         const devices = await Device.find();
+        logger.info("Success");
+        logger.warn("Warn")
+        logger.error("Error")
         res.status(200).json({status: true, devices: devices});
     } catch (error) {
         res.status(500).json({status: false, message: "Error fetching devices", error: error.message});

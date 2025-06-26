@@ -26,6 +26,6 @@ cron.schedule('0 * * * *',async () => {
     }
 })
 
-cron.shecule('0 * * * *', async () => {
+cron.schedule('0 * * * *', async () => {
     console.log("Cron jobs health check ok!")
 })
