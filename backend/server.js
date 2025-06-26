@@ -11,6 +11,8 @@ mongoose.connect(process.env.MONGODB_URI)
         console.log("Connected to MongoDB");
         
         await setupCollectionOnce(mongoose.connection.db);
+
+        require('./src/cron/energy.jobs')
         app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
         });

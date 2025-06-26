@@ -57,6 +57,14 @@ let deviceSchema = new Schema({
     // for manual mode
     manualActivatedAt: {
         type: Date
+    },
+
+    lastRecordedAt: {
+        type: Date
+    },
+
+    lastDailyRecordDate: {
+        type: Date,
     }
     },
     {timestamps: true

@@ -42,7 +42,7 @@ exports.createDevice = async (req, res) => {
         powerWatts: data.powerWatts, 
         alwaysOnActivatedAt: data.alwaysOnActivatedAt,
         dailyFixedSchedule: data.dailyFixedSchedule ,
-        isActive: data.isActive || false, // Default to false if not provided
+        isActive: data.isActive ?? false , // Default to false if not provided. Nullish operator checks for null or undefined.
         location: data.location || 'other' // Default to 'other' if not provided
     });
 
