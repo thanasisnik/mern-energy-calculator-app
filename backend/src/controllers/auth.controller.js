@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 const authService = require('../services/auth.service');
+const logger = require('../logger/logger')
 
 exports.login = async (req, res) => {
 
@@ -20,13 +21,16 @@ exports.login = async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, result.password);
 
         if (!isPasswordValid) {
+            logger.warn("Login: Invalid email or password.")
             return res.status(404).json({status: false, message: "Invalid email or password"});
         } else {
             // Generate JWT token
             const token = authService.generateToken(result);
+            logger.info("User Logged in succesfully.")
             return res.status(200).json({status: true, message: "Login successful", data: token});
         }
     } catch (err) {
+        logger.error("Bad request")
         res.status(500).json({status: false, message: err.message});
     }
 
