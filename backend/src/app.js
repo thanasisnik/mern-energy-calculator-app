@@ -11,6 +11,9 @@ const energyRoutes = require("./routes/energy.routes");
 app.use(cors());
 app.use(express.json());
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger');
+
 app.get("/", (req, res) => {
   res.send("API is working");
 });
@@ -22,5 +25,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/devices", deviceRoutes);
 
 app.use("/api/consumption", energyRoutes);
+
+app.use("/api-docs", 
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument.options)
+)
 
 module.exports = app;

@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
         } else {
             // Generate JWT token
             const token = authService.generateToken(result);
-            logger.info("User Logged in succesfully.")
+            logger.info(`User ${email} logged in successfully.`)
             return res.status(200).json({status: true, message: "Login successful", data: token});
         }
     } catch (err) {

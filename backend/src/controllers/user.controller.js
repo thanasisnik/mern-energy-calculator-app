@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
+const logger = require('../logger/logger');
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -39,11 +40,12 @@ exports.createUser = async (req, res) => {
 
     try {
         const result = await user.save();
+        logger.info(`User ${user.fullName} succesfully register.`)
         res.status(201).json({status: true, message: " User created successfully"});
     } catch (err) {
+        logger.error(`Error at register: ${err.message}`)
         res.status(400).json({status: false, message: err.message});
     }
-
 }
 
 // Show user profile
@@ -84,6 +86,7 @@ exports.updateUserById = async (req, res) => {
         }
         res.status(200).json({status: true, message: "User updated successfully", user: user});
     } catch (err) {
+        // console.error("UPDATE ERROR:", err);
         res.status(500).json({status: false, message: err.message});
     }
 }

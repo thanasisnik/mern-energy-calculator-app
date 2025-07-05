@@ -65,7 +65,15 @@ let deviceSchema = new Schema({
 
     lastDailyRecordDate: {
         type: Date,
+    },
+
+    // device connect with a user
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
+    
     },
     {timestamps: true
 

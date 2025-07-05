@@ -44,7 +44,8 @@ exports.createDevice = async (req, res) => {
         alwaysOnActivatedAt: data.alwaysOnActivatedAt,
         dailyFixedSchedule: data.dailyFixedSchedule ,
         isActive: data.isActive ?? false , // Default to false if not provided. Nullish operator checks for null or undefined.
-        location: data.location || 'other' // Default to 'other' if not provided
+        location: data.location || 'other', // Default to 'other' if not provided
+        user: req.user._id
     });
 
     // Save the device to the database
@@ -62,7 +63,7 @@ exports.createDevice = async (req, res) => {
 // Get all devices
 exports.getAllDevices = async (req, res) => {
     try {
-        const devices = await Device.find();
+        const devices = await Device.find({ user: req.user._id });
         logger.info("Return all devices succesfully");
         res.status(200).json({status: true, devices: devices});
     } catch (error) {

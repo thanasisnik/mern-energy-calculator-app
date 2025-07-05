@@ -12,6 +12,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await Device.deleteOne({ name: 'Test Device' });
     await mongoose.connection.close();
 });
 
