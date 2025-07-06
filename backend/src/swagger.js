@@ -45,7 +45,7 @@ exports.options = {
         }
     ],
     "paths": {
-        "/api/users/register": {
+        "/api/users/": {
             "post": {
                 "tags":["Users"],
                 "description": "Register a new user with hashed password",

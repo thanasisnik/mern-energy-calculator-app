@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const Device = require('../models/device.model')
 
-async function recordEnergyUsage({deviceId, startTime, endTime, powerWatts}){
+async function recordEnergyUsage({deviceId, startTime, endTime, powerWatts, user}){
     const duration = (endTime - startTime ) / 1000 / 60 / 60;  // from ms to hour
     const consumption = duration * powerWatts;
 
@@ -13,7 +13,8 @@ async function recordEnergyUsage({deviceId, startTime, endTime, powerWatts}){
         endTime,
         duration,
         powerWatts,
-        consumption
+        consumption,
+        user
     })
 }
 
@@ -37,7 +38,8 @@ async function recordAlwaysOnUsage() {
             deviceId: device.deviceId,
             startTime,
             endTime,
-            powerWatts: device.powerWatts
+            powerWatts: device.powerWatts,
+            user: device.user,
         })
 
         device.lastRecordedAt = now;
@@ -69,7 +71,8 @@ async function recordDailyFixedUsage() {
             deviceId: device.deviceId,
             startTime: start,
             endTime: end,
-            powerWatts: device.powerWatts
+            powerWatts: device.powerWatts,
+            user: device.user,
             });
 
             device.lastDailyRecordDate = today;

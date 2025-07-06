@@ -78,13 +78,20 @@ exports.getDeviceById = async (req, res) => {
 
     try {
         const device = await Device.findById(id);
+
         if (!device) {
             logger.warn("Device not found")
             return res.status(404).json({status: false, message: "Device not found"});
         }
+
+        if (device.user.toString() !== req.user._id){
+            logger.warn("Unauthorized access ")
+            return res.status(403).json({status: false, message: "Unauthorized access"})
+        }
+
         res.status(200).json({status: true, device: device});
     } catch (error) {
-        logger.error("Error to fetch device")
+        logger.error("Error to fetch device", error)
         res.status(500).json({status: false, message: "Error fetching device", error: error.message});
     }
 }
@@ -110,11 +117,19 @@ exports.updateDeviceById = async (req, res) => {
     }
 
     try {
-        const device = await Device.findByIdAndUpdate(id, data, { new: true });
+        const device = await Device.findById(id);
         if (!device) {
             return res.status(404).json({status: false, message: "Device not found"});
         }
-        res.status(200).json({status: true, device: device});
+
+        if (device.user.toString() !== req.user._id){
+            logger.warn("Unauthorized access ")
+            return res.status(403).json({status: false, message: "Unauthorized access"})
+        }
+
+        const updatedDevice = await Device.findByIdAndUpdate(id, data, {new: true});
+
+        res.status(200).json({status: true, device: updatedDevice});
     } catch (error) {
         res.status(500).json({status: false, message: "Error updating device", error: error.message});
     }
@@ -124,11 +139,17 @@ exports.updateDeviceById = async (req, res) => {
 exports.deleteDeviceById = async (req, res) => {
     const id = req.params.id;
     try {
-        const device = await Device.findByIdAndDelete(id);
+        const device = await Device.findById(id);
         if (!device) {
             return res.status(404).json({status: false, message: "Device not found"});
         }
-        res.status(200).json({status: true, message: "Device deleted successfully"});
+
+        if (device.user.toString() !== req.user._id){
+            logger.warn("Unauthorized access ")
+            return res.status(403).json({status: false, message: "Unauthorized access"})
+        }
+        const deletedDevice = await Device.findByIdAndDelete(id);
+        res.status(200).json({status: true, message: "Device deleted", device: deletedDevice});
     } catch (error) {
         res.status(500).json({status: false, message: "Error deleting device", error: error.message});
     }
@@ -137,7 +158,7 @@ exports.deleteDeviceById = async (req, res) => {
 // Delete all devices
 exports.deleteAllDevices = async (req, res) => {
     try {
-        await Device.deleteMany({});
+        await Device.deleteMany({user: req.user._id});
         res.status(200).json({status: true, message: "All devices deleted successfully"});
     } catch (error) {
         res.status(500).json({status: false, message: "Error deleting devices", error: error.message});
@@ -158,6 +179,11 @@ exports.toggleManualDevice = async(req, res) => {
             return res.status(400).json({status:false, message: "Only manual device can be toggled"})
         }
 
+        if (device.user.toString() !== req.user._id){
+            logger.warn("Unauthorized access ")
+            return res.status(403).json({status: false, message: "Unauthorized access"})
+        }
+
         if (device.isActive) {
             const startTime = device.manualActivatedAt;
             const endTime = new Date();
@@ -170,7 +196,8 @@ exports.toggleManualDevice = async(req, res) => {
                 deviceId: device.deviceId,
                 startTime,
                 endTime,
-                powerWatts: device.powerWatts
+                powerWatts: device.powerWatts,
+                user: device.user,
             })
 
             device.manualActivatedAt = null;

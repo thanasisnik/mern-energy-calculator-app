@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const deviceController = require('../controllers/device.controller');
+const verifyToken = require('../middlewares/auth.middleware')
 
-router.post('/', deviceController.createDevice);
-router.get('/', deviceController.getAllDevices);
-router.get('/:id', deviceController.getDeviceById);
-router.put('/:id', deviceController.updateDeviceById);
-router.delete('/:id', deviceController.deleteDeviceById);
-router.patch('/:id/toggle', deviceController.toggleManualDevice);
+router.post('/',verifyToken, deviceController.createDevice);
+router.get('/',verifyToken, deviceController.getAllDevices);
+router.get('/:id',verifyToken, deviceController.getDeviceById);
+router.put('/:id',verifyToken, deviceController.updateDeviceById);
+router.delete('/:id',verifyToken, deviceController.deleteDeviceById);
+router.patch('/:id/toggle',verifyToken, deviceController.toggleManualDevice);
 
 
 module.exports = router;
