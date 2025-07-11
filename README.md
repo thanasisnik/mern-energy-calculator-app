@@ -39,7 +39,7 @@ Follow the steps below to run the project locally:
 
 ```bash
 git clone https://github.com/thanasisnik/mern-energy-calculator-app
-cd your-repo-name
+cd mern-energy-calculator-app
 ```
 
 2. **Install the depedencies**
