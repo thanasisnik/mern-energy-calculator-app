@@ -9,6 +9,7 @@ router.get('/:id',verifyToken, deviceController.getDeviceById);
 router.put('/:id',verifyToken, deviceController.updateDeviceById);
 router.delete('/:id',verifyToken, deviceController.deleteDeviceById);
 router.patch('/:id/toggle',verifyToken, deviceController.toggleManualDevice);
+router.delete('/', verifyToken, deviceController.deleteAllDevices);
 
 
 module.exports = router;
